@@ -3,15 +3,14 @@ const { Collection } = require('discord.js');
 const fs = require('fs');
 
 /**
- * Class gérant les plugins du bot.
- * Cette classe propose aussi un système de logging pour le client.
+ * Class managing the client's plugins.
+ * This class also offers a logging system.
  */
 class PluginsManager {
 	/**
-	 * Constructeur de la class.
-	 * @param {Client} client Le client du bot.
-	 * @param {object} options Un objet contenant des options altérant le comportement
-	 * du plugins manager.
+	 * Class constructor.
+	 * @param {Client} client The bot's client.
+	 * @param {object} options Some options altering the PM comportment.
 	 */
 	constructor(client, options = {}) {
 		this.client = client;
@@ -25,18 +24,18 @@ class PluginsManager {
 	}
 
 	/**
-	 * Démarre le bot.
-	 * @param {string} token Le token du bot.
+	 * Starts the client with logging.
+	 * @param {string} token The client's token.
 	 */
 	async start(clientToken) {
-		this.log('Démarrage du bot.');
+		this.log('Bot starting up.');
 		await this.client.login(clientToken);
 	}
 
 	/**
 	 * Affiche le log si le logging est activé.
-	 * @param {string} text Le message de log.
-	 * @param {number} level Optionnel (0 = défaut). Le niveau de log (INFO = 0, WARNING = 1).
+	 * @param {string} text The log message.
+	 * @param {number} level Optional (0 = default). The log level (INFO = 0, WARNING = 1).
 	 */
 	log(text, level = 0) {
 		if (this.log_enabled) {
@@ -48,18 +47,18 @@ class PluginsManager {
 	}
 
 	/**
-	 * Charge les plugins dans le bot.
+	 * Loads the plugins in the client.
 	 */
 	loadPlugins() {
 		const plugins = fs.readdirSync(pluginsPath, { withFileTypes: true })
 			.filter(dirent => dirent.isDirectory())
 			.map(dirent => dirent.name);
 
-		this.log(`${plugins.length} plugin(s) trouvé(s) !`);
+		this.log(`${plugins.length} plugins found !`);
 		let nb_plugins_charges = 0;
 
 		for (const plugin of plugins) {
-			this.log(`Chargement du plugin ${plugin}`);
+			this.log(`Loading the plugin ${plugin}`);
 
 			const folders = fs.readdirSync(`${pluginsPath}/${plugin}`, { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory() || dirent.name === 'plugin.json')
@@ -68,7 +67,6 @@ class PluginsManager {
 			if (folders.includes('plugin.json')) {
 				const plug_conf = require(`${process.cwd()}/${pluginsPath}/${plugin}/plugin.json`);
 				if ('enabled' in plug_conf && !plug_conf.enabled) {
-					this.log('Plugin ignoré car désactivé (plugin.json) !');
 					continue;
 				}
 			}
@@ -78,12 +76,12 @@ class PluginsManager {
 			nb_plugins_charges++;
 		}
 
-		this.log(`${nb_plugins_charges} plugin(s) chargé(s) !`);
+		this.log(`${nb_plugins_charges} plugins loaded !`);
 	}
 
 	/**
-	 * Charge les commandes d'un plugin dans le bot.
-	 * @param {string} plugin Le nom du plugin.
+	 * Loads the commands in the client.
+	 * @param {string} plugin The plugin's name.
 	 */
 	loadCommands(plugin) {
 		const commandsPath = `${process.cwd()}/${pluginsPath}/${plugin}/commands`;
@@ -92,15 +90,15 @@ class PluginsManager {
 			.map(filent => filent.name);
 
 		for (const command of commands) {
-			this.log(`Chargement de la commande '${plugin}-${command}'.`);
+			this.log(`Loading the command '${plugin}-${command}'.`);
 			const data = require(`${commandsPath}/${command}`);
 			this.client.commands.set(data.data.name, data);
 		}
 	}
 
 	/**
-	 * Charge les évènements d'un plugin dans le bot.
-	 * @param {string} plugin Le nom du plugin.
+	 * Loads the events in the client.
+	 * @param {string} plugin The plugin's name.
 	 */
 	loadEvents(plugin) {
 		const eventsPath = `${process.cwd()}/${pluginsPath}/${plugin}/events`;
@@ -109,7 +107,7 @@ class PluginsManager {
 			.map(filent => filent.name);
 
 		for (const event of events) {
-			this.log(`Chargement de l'évènement '${plugin}-${event}'.`);
+			this.log(`Loading the event '${plugin}-${event}'.`);
 
 			const data = require(`${eventsPath}/${event}`);
 			const data_exc = async (...args) => { await data.execute(...args, this.client); };
@@ -124,10 +122,8 @@ class PluginsManager {
 	}
 
 	/**
-	 * Upload les commandes, soit dans une guild spécifiée, soit dans toutes les guilds
-	 * du bot.
-	 * @param {string} guildId Optionel. L'identifiant de la guild si les commandes doivent
-	 * être uploadées dans une seul guild.
+	 * Upload the commands either in a specified guild or in all the client's guilds.
+	 * @param {string} guildId Optional. The Id of the guild that will receive the commands.
 	 */
 	async uploadCommands(guildId = null) {
 		const commands = [];
@@ -135,11 +131,11 @@ class PluginsManager {
 			commands.push(command.data.toJSON());
 		});
 
-		this.log('Les commandes vont être chargées dans ' + (guildId
-			? `la guild ${guildId}.`
-			: 'toutes les guilds.'
+		this.log('The commands will be uploaded ' + (guildId
+			? `in the guild ${guildId}.`
+			: 'in all the guilds.'
 		));
-		this.log(`Début de la mise à jour de ${commands.length} application (/) commands !`);
+		this.log(`Started refreshing ${commands.length} application (/) commands !`);
 
 		if (guildId) {
 			await this._uploadCommandsToGuild(guildId, commands);
@@ -151,15 +147,14 @@ class PluginsManager {
 			});
 		}
 
-		this.log('Fin de la mise à jour des application (/) commands !');
+		this.log('Successfully reloaded application (/) commands !');
 	}
 
 	/**
-	 * Upload les commandes passées en paramètre dans une guild.
-	 * Cette fonction est privée et n'a donc pas à être appelée par
-	 * l'utilisateur.
-	 * @param {string} guildId l'identifiant de la guild ciblée.
-	 * @param {array} commands Une liste contenant les commandes à uploader dans la guild.
+	 * Upload the commands passed as parameter to the specified guild.
+	 * This function is private and should not be called by the user.
+	 * @param {string} guildId The guild's id.
+	 * @param {array} commands The commands list.
 	 */
 	async _uploadCommandsToGuild(guildId, commands) {
 		const guild = await this.client.guilds.fetch(guildId);

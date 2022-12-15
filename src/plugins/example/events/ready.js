@@ -1,15 +1,15 @@
 /**
  * @author uAtomicBoolean
  * @file
- *		Handler pour l'évènement messageCreate.
-*		Cet évènement est utilisé dans de multiples modules.
+ *		Simple 'ready' event logging when the bot is ready.
+ */
 
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
 /* ----------------------------------------------- */
 /**
- * Handler pour l'évènement.
+ * Handler for the event.
  */
 async function execute() {
 	console.log('Bot is ready !');

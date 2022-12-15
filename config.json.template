@@ -1,7 +1,7 @@
 {
-    "token": "",
-    "botId": "",
-    "devGuildId": "",
+	"token": "",
+	"botId": "",
+	"devGuildId": "",
 
 	"pluginsPath": "src/plugins"
 }
