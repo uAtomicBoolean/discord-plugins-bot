@@ -18,7 +18,7 @@ const client = new Client({
 	],
 });
 
-client.pm = new PluginsManager(client, { verbose: process.argv.includes('-v') });
+client.pm = new PluginsManager(client);
 
 (async () => {
 	await client.pm.start(token);
