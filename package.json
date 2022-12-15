@@ -1,0 +1,34 @@
+{
+  "name": "mod-bot",
+  "version": "1.0.0",
+  "description": "A template for developing discord bots using a modules system.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uAtomicBoolean/mod-bot.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "discordjs",
+    "template",
+    "module",
+    "modules",
+    "plugins"
+  ],
+  "author": "uAtomicBoolean",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uAtomicBoolean/mod-bot/issues"
+  },
+  "homepage": "https://github.com/uAtomicBoolean/mod-bot#readme",
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.29.0"
+  }
+}
