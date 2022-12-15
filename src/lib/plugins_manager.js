@@ -53,7 +53,7 @@ class PluginsManager {
 		let nb_plugins_charges = 0;
 
 		for (const plugin of plugins) {
-			this.log(`Loading the plugin ${plugin}`);
+			this.log(`Loading the plugin '${plugin}'`);
 
 			const folders = fs.readdirSync(`${pluginsPath}/${plugin}`, { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory() || dirent.name === 'plugin.json')
