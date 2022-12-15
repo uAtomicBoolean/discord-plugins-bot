@@ -64,10 +64,14 @@ class PluginsManager {
 				.filter(dirent => dirent.isDirectory() || dirent.name === 'plugin.json')
 				.map(dirent => dirent.name);
 
-			if (folders.includes('plugin.json')) {
-				const plug_conf = require(`${process.cwd()}/${pluginsPath}/${plugin}/plugin.json`);
+			if (folders.includes('plugin.js')) {
+				const plug_conf = require(`${process.cwd()}/${pluginsPath}/${plugin}/plugin.js`);
 				if ('enabled' in plug_conf && !plug_conf.enabled) {
 					continue;
+				}
+				// Executing the plugin's initialization function.
+				if ('init' in plug_conf) {
+					plug_conf.init(this.client).then();
 				}
 			}
 
