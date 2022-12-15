@@ -12,12 +12,9 @@ class PluginsManager {
 	 * @param {Client} client The bot's client.
 	 * @param {object} options Some options altering the PM comportment.
 	 */
-	constructor(client, options = {}) {
+	constructor(client) {
 		this.client = client;
 		this.client.commands = new Collection();
-		this.options = options;
-
-		this.log_enabled = 'verbose' in this.options && this.options.verbose;
 		this.log_levels = ['INFO', 'WARNING'];
 
 		this.loadPlugins();
@@ -38,12 +35,10 @@ class PluginsManager {
 	 * @param {number} level Optional (0 = default). The log level (INFO = 0, WARNING = 1).
 	 */
 	log(text, level = 0) {
-		if (this.log_enabled) {
-			const date = new Date();
-			const dateFormat = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} `
-				+ `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-			console.log(`${dateFormat} ${this.log_levels[level]} : ${text}`);
-		}
+		const date = new Date();
+		const dateFormat = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} `
+			+ `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+		console.log(`${dateFormat} ${this.log_levels[level]} : ${text}`);
 	}
 
 	/**
