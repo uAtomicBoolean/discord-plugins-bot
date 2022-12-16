@@ -4,6 +4,7 @@
   "description": "A template for developing discord bots using a modules system.",
   "main": "src/index.js",
   "scripts": {
+	"start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
