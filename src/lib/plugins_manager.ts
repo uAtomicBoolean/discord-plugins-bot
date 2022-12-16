@@ -1,18 +1,22 @@
-const { pluginsPath } = require(`${process.cwd()}/config.json`);
-const { Collection } = require('discord.js');
-const fs = require('fs');
+import { Client, Collection } from "discord.js";
+import { pluginsPath } from '../config.json';
+import fs from 'fs';
+
 
 /**
  * Class managing the client's plugins.
  * This class also offers a logging system.
  */
-class PluginsManager {
+export class PluginsManager {
+	public client: Client;
+	private log_levels: Array<string>;
+	
 	/**
 	 * Class constructor.
 	 * @param {Client} client The bot's client.
 	 * @param {object} options Some options altering the PM comportment.
 	 */
-	constructor(client) {
+	constructor(client: Client) {
 		this.client = client;
 		this.client.commands = new Collection();
 		this.log_levels = ['INFO', 'WARNING'];
@@ -24,7 +28,7 @@ class PluginsManager {
 	 * Starts the client with logging.
 	 * @param {string} token The client's token.
 	 */
-	async start(clientToken) {
+	async start(clientToken: string) {
 		this.log('Bot starting up.');
 		await this.client.login(clientToken);
 	}
@@ -34,7 +38,7 @@ class PluginsManager {
 	 * @param {string} text The log message.
 	 * @param {number} level Optional (0 = default). The log level (INFO = 0, WARNING = 1).
 	 */
-	log(text, level = 0) {
+	log(text: string, level: number = 0) {
 		const date = new Date();
 		const dateFormat = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} `
 			+ `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -82,7 +86,7 @@ class PluginsManager {
 	 * Loads the commands in the client.
 	 * @param {string} plugin The plugin's name.
 	 */
-	loadCommands(plugin) {
+	loadCommands(plugin: string) {
 		const commandsPath = `${process.cwd()}/${pluginsPath}/${plugin}/commands`;
 		const commands = fs.readdirSync(commandsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile())
@@ -99,7 +103,7 @@ class PluginsManager {
 	 * Loads the events in the client.
 	 * @param {string} plugin The plugin's name.
 	 */
-	loadEvents(plugin) {
+	loadEvents(plugin: string) {
 		const eventsPath = `${process.cwd()}/${pluginsPath}/${plugin}/events`;
 		const events = fs.readdirSync(eventsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile())
@@ -109,7 +113,7 @@ class PluginsManager {
 			this.log(`Loading the event '${plugin}-${event}'.`);
 
 			const data = require(`${eventsPath}/${event}`);
-			const data_exc = async (...args) => { await data.execute(...args, this.client); };
+			const data_exc = async (...args: any[]) => { await data.execute(...args, this.client); };
 
 			if (data.once) {
 				this.client.once(data.name, data_exc);
@@ -125,7 +129,7 @@ class PluginsManager {
 	 * @param {string} guildId Optional. The Id of the guild that will receive the commands.
 	 */
 	async uploadCommands(guildId = null) {
-		const commands = [];
+		const commands: any[] = [];
 		this.client.commands.map(command => {
 			commands.push(command.data.toJSON());
 		});
@@ -155,13 +159,8 @@ class PluginsManager {
 	 * @param {string} guildId The guild's id.
 	 * @param {array} commands The commands list.
 	 */
-	async _uploadCommandsToGuild(guildId, commands) {
+	async _uploadCommandsToGuild(guildId: string, commands: any[]) {
 		const guild = await this.client.guilds.fetch(guildId);
 		guild.commands.set(commands);
 	}
 }
-
-
-module.exports = {
-	PluginsManager,
-};

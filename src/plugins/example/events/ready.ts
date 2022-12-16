@@ -11,7 +11,7 @@
 /**
  * Handler for the event.
  */
-async function execute() {
+export async function execute() {
 	console.log('Bot is ready !');
 }
 
@@ -19,8 +19,5 @@ async function execute() {
 /* ----------------------------------------------- */
 /* MODULE EXPORTS                                  */
 /* ----------------------------------------------- */
-module.exports = {
-	name: 'ready',
-	execute,
-	once: true,
-};
+export const name = 'ready';
+export const once = true;
