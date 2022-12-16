@@ -4,6 +4,8 @@
   "description": "A template for developing discord bots using a modules system.",
   "main": "src/index.js",
   "scripts": {
+	"start": "ts-node src/index.ts",
+    "startl": "ts-node src/index.ts -l",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -29,6 +31,8 @@
     "discord.js": "^14.7.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.46.1",
+    "@typescript-eslint/parser": "^5.46.1",
     "eslint": "^8.29.0"
   }
 }

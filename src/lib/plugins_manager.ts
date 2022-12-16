@@ -1,40 +1,41 @@
-const { pluginsPath } = require(`${process.cwd()}/config.json`);
-const { Collection } = require('discord.js');
-const fs = require('fs');
+import { Collection } from "discord.js";
+import { pluginsPath } from '../config.json';
+import { Bot } from "./bot";
+import fs from 'fs';
+
 
 /**
  * Class managing the client's plugins.
  * This class also offers a logging system.
  */
-class PluginsManager {
+export class PluginsManager {
+	public client: Bot;
+	private log_levels: Array<string>;
+	
 	/**
 	 * Class constructor.
-	 * @param {Client} client The bot's client.
-	 * @param {object} options Some options altering the PM comportment.
+	 * @param client The bot's client.
 	 */
-	constructor(client) {
+	constructor(client: Bot) {
 		this.client = client;
-		this.client.commands = new Collection();
 		this.log_levels = ['INFO', 'WARNING'];
-
-		this.loadPlugins();
 	}
 
 	/**
 	 * Starts the client with logging.
-	 * @param {string} token The client's token.
+	 * @param token The client's token.
 	 */
-	async start(clientToken) {
+	async start(clientToken: string) {
 		this.log('Bot starting up.');
 		await this.client.login(clientToken);
 	}
 
 	/**
 	 * Affiche le log si le logging est activé.
-	 * @param {string} text The log message.
-	 * @param {number} level Optional (0 = default). The log level (INFO = 0, WARNING = 1).
+	 * @param text The log message.
+	 * @param level Optional (0 = default). The log level (INFO = 0, WARNING = 1).
 	 */
-	log(text, level = 0) {
+	log(text: string, level: number = 0) {
 		const date = new Date();
 		const dateFormat = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} `
 			+ `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
@@ -80,9 +81,9 @@ class PluginsManager {
 
 	/**
 	 * Loads the commands in the client.
-	 * @param {string} plugin The plugin's name.
+	 * @param plugin The plugin's name.
 	 */
-	loadCommands(plugin) {
+	loadCommands(plugin: string) {
 		const commandsPath = `${process.cwd()}/${pluginsPath}/${plugin}/commands`;
 		const commands = fs.readdirSync(commandsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile())
@@ -97,9 +98,9 @@ class PluginsManager {
 
 	/**
 	 * Loads the events in the client.
-	 * @param {string} plugin The plugin's name.
+	 * @param plugin The plugin's name.
 	 */
-	loadEvents(plugin) {
+	loadEvents(plugin: string) {
 		const eventsPath = `${process.cwd()}/${pluginsPath}/${plugin}/events`;
 		const events = fs.readdirSync(eventsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile())
@@ -109,8 +110,7 @@ class PluginsManager {
 			this.log(`Loading the event '${plugin}-${event}'.`);
 
 			const data = require(`${eventsPath}/${event}`);
-			const data_exc = async (...args) => { await data.execute(...args, this.client); };
-
+			const data_exc = async (...args: any[]) => { await data.execute(...args, this.client); };
 			if (data.once) {
 				this.client.once(data.name, data_exc);
 			}
@@ -122,11 +122,11 @@ class PluginsManager {
 
 	/**
 	 * Upload the commands either in a specified guild or in all the client's guilds.
-	 * @param {string} guildId Optional. The Id of the guild that will receive the commands.
+	 * @param guildId Optional. The Id of the guild that will receive the commands.
 	 */
-	async uploadCommands(guildId = null) {
-		const commands = [];
-		this.client.commands.map(command => {
+	async uploadCommands(guildId: string | null = null) {
+		const commands: Array<any> = [];
+		this.client.commands.map((command: any) => {
 			commands.push(command.data.toJSON());
 		});
 
@@ -140,7 +140,7 @@ class PluginsManager {
 			await this._uploadCommandsToGuild(guildId, commands);
 		}
 		else {
-			await this.client.application.commands.set(commands);
+			await this.client.application?.commands.set(commands);
 			this.client.guilds.cache.forEach(async (value, key) => {
 				await this._uploadCommandsToGuild(key, commands);
 			});
@@ -152,16 +152,11 @@ class PluginsManager {
 	/**
 	 * Upload the commands passed as parameter to the specified guild.
 	 * This function is private and should not be called by the user.
-	 * @param {string} guildId The guild's id.
-	 * @param {array} commands The commands list.
+	 * @param guildId The guild's id.
+	 * @param commands The commands list.
 	 */
-	async _uploadCommandsToGuild(guildId, commands) {
+	async _uploadCommandsToGuild(guildId: string, commands: any[]) {
 		const guild = await this.client.guilds.fetch(guildId);
 		guild.commands.set(commands);
 	}
 }
-
-
-module.exports = {
-	PluginsManager,
-};
