@@ -4,6 +4,8 @@
  *		Simple 'ready' event logging when the bot is ready.
  */
 
+import { Bot } from "src/lib/bot";
+
 
 /* ----------------------------------------------- */
 /* FUNCTIONS                                       */
@@ -11,8 +13,8 @@
 /**
  * Handler for the event.
  */
-export async function execute() {
-	console.log('Bot is ready !');
+export async function execute(client: Bot) {
+	client.pm.log('Bot is ready !');
 }
 
 

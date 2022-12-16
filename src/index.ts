@@ -1,8 +1,10 @@
-import { Client, GatewayIntentBits } from 'discord.js'
-import { PluginsManager } from './lib/plugins_manager'
-import { token, devGuildId } from './config.json'
+import { GatewayIntentBits } from 'discord.js';
+import { PluginsManager } from './lib/plugins_manager';
+import { token, devGuildId } from './config.json';
+import { Bot } from './lib/bot';
 
-const client = new Client({
+
+const client = new Bot({
 	intents: [
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMembers,

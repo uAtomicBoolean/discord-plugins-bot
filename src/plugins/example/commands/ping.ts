@@ -10,7 +10,7 @@ import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 /* ----------------------------------------------- */
 /* COMMAND BUILD                                   */
 /* ----------------------------------------------- */
-export const slashCommand = new SlashCommandBuilder()
+export const data = new SlashCommandBuilder()
 	.setName('ping')
 	.setDescription('[misc] Pong !');
 
