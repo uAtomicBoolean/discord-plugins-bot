@@ -14,7 +14,7 @@ import { Bot } from "src/lib/bot";
  * Handler for the event.
  */
 export async function execute(client: Bot) {
-	client.pm.log('Bot is ready !');
+	client.log('Bot is ready !');
 }
 
 
