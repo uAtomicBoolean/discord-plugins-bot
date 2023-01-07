@@ -1,6 +1,5 @@
-# mod-bot
-A base template for a discord bot using discordjs.
+# plugins-bot
+This discord bot is only the base offered to developd a bot using a plugin model.
+Each functionnality of the bot can be added to it by adding a plugin in its 'plugins' folder.
 
-This templates allows to develop the bot using modules for each functionnalities.
-Each module has its own folder with its own events and commands.
-This allows the code to be much clearer by not having multiples modules shuffled together in the same events functions.
+You can go to the wiki to see a tutorial on how to use this bot.
