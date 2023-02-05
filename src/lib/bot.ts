@@ -1,7 +1,7 @@
-import { 
-	Client, 
-	ClientOptions, 
-	Collection, 
+import {
+	Client,
+	ClientOptions,
+	Collection,
 	ApplicationCommandDataResolvable } from 'discord.js';
 import { commandsArray } from '@lib/types';
 import { green, red, yellow } from 'ansicolor';
@@ -13,13 +13,13 @@ const LOG_LEVELS = ['INFO', 'WARNING', 'ERROR'];
 
 export class Bot extends Client {
 	public commands: commandsArray;
-	private _pluginsPath: string;
+	private readonly _pluginsPath: string;
 
 	constructor(options: ClientOptions) {
 		super(options);
 		this.commands = new Collection();
 
-		// This variable is necessary to load the plugins from dist and 
+		// This variable is necessary to load the plugins from dist and
 		// not src (and the opposite) when running the code after compilation.
 		this._pluginsPath = `${__dirname}/../plugins`;
 
@@ -106,7 +106,7 @@ export class Bot extends Client {
 					continue;
 				}
 				if ('init' in plug_conf) {
-					plug_conf.init(this).then();
+					plug_conf.init(this);
 				}
 			}
 
@@ -165,7 +165,7 @@ export class Bot extends Client {
 	/**
 	 * Upload the commands in either the specified guild, or in all the guilds if no
 	 * id is passed.
-	 * @param guildId [Optional] The guild's id if the commands needs to be only 
+	 * @param guildId [Optional] The guild's id if the commands needs to be only
 	 * upload in one guild.
 	 */
 	async uploadCommands(guildId: string | null = null) {
@@ -201,6 +201,6 @@ export class Bot extends Client {
 	 */
 	private async _uploadCommandsToGuild(guildId: string, commands: any[]) {
 		const guild = await this.guilds.fetch(guildId);
-		guild.commands.set(commands);
+		await guild.commands.set(commands);
 	}
 }

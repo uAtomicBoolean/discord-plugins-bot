@@ -3,8 +3,8 @@
  * @description The handler for the 'interactionCreate' event.
  */
 
-import { CommandInteraction } from "discord.js";
-import { Bot } from "src/lib/bot";
+import { CommandInteraction } from 'discord.js';
+import { Bot } from 'src/lib/bot';
 
 
  /**
@@ -15,6 +15,6 @@ import { Bot } from "src/lib/bot";
 		await client.commands.get(interaction.commandName)?.execute(interaction, client);
 	}
  }
- 
- 
+
+
  export const name = 'interactionCreate';

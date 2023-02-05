@@ -4,7 +4,7 @@
  *		Simple 'ready' event logging when the bot is ready.
  */
 
-import { Bot } from "src/lib/bot";
+import { Bot } from 'src/lib/bot';
 
 
 /* ----------------------------------------------- */

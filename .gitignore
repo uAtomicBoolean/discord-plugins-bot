@@ -105,3 +105,6 @@ dist
 
 # Configuration file
 config.json
+
+# Jetbrains suite
+.idea
