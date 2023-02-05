@@ -1,6 +1,6 @@
 import { GatewayIntentBits, Partials } from 'discord.js';
 import { token, devGuildId } from '@src/config.json';
-import { Bot } from './lib/bot';
+import { Bot } from '@lib/bot';
 
 
 // You must use your own intents and partials for the bot to run properly.
