@@ -1,5 +1,5 @@
 {
-	"name": "mod-bot",
+	"name": "discord-plugin-bot",
 	"version": "1.0.0",
 	"description": "A template for developing discord bots using a modules system.",
 	"main": "src/index.js",
