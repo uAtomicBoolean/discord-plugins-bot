@@ -74,7 +74,7 @@ export class Bot extends Client {
 	 */
 	logErrCommande(cmd_name: string, error: unknown) {
 		this.log(`An error occured in the "${cmd_name}" command !`, 2);
-        console.log(error);
+        	console.log(error);
 	}
 
 	/* ----------------------------------------------- */
@@ -132,7 +132,7 @@ export class Bot extends Client {
 		for (const command of commands) {
 			this.log(`\t command: ${command}`);
 			const data = require(`${commandsPath}/${command}`);
-			this.commands.set(data.data.name, data);
+			this.commands.set(data.command.name, data);
 		}
 	}
 
@@ -169,8 +169,8 @@ export class Bot extends Client {
 	 */
 	async uploadCommands(guildId: string | null = null) {
 		const commands: ApplicationCommandDataResolvable[] = [];
-		this.commands.map(command => {
-			commands.push(command.data.toJSON());
+		this.commands.map(data => {
+			commands.push(data.command.toJSON());
 		});
 
 		this.log('The commands will be loaded in ' + (guildId
@@ -180,7 +180,8 @@ export class Bot extends Client {
 		this.log(`Starting refreshing ${commands.length} application (/) commands !`);
 
 		if (guildId) {
-			await this._uploadCommandsToGuild(guildId, commands);
+			const guild = await this.guilds.fetch(guildId);
+			await guild.commands.set(commands);
 		}
 		else {
 			await this.application?.commands.set(commands);
@@ -190,16 +191,5 @@ export class Bot extends Client {
 		}
 
 		this.log(`Successfully reloaded ${commands.length} application (/) commands !`);
-	}
-
-	/**
-	 * Upload the commands passed as parameters in a guild.
-	 * This function is used by the 'uploadCommands' function.
-	 * @param guildId The id of the targeted guild.
-	 * @param commands The commands' list.
-	 */
-	private async _uploadCommandsToGuild(guildId: string, commands: any[]) {
-		const guild = await this.guilds.fetch(guildId);
-		await guild.commands.set(commands);
 	}
 }
