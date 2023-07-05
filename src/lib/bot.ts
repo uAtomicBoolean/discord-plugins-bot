@@ -71,11 +71,11 @@ export class Bot extends Client {
 
 	/**
 	 * Display a log but specificaly for an error in a command.
-	 * @param cmd_name The command's name.
+	 * @param cmdName The command's name.
 	 * @param error The error.
 	 */
-	logErrCommande(cmd_name: string, error: unknown) {
-		this.log(`An error occured in the "${cmd_name}" command !`, 2);
+	logErrCommande(cmdName: string, error: unknown) {
+		this.log(`An error occured in the "${cmdName}" command !`, 2);
         	console.log(error);
 	}
 
@@ -91,7 +91,7 @@ export class Bot extends Client {
 			.map(dirent => dirent.name);
 
 		this.log(`${plugins.length} plugins found !`);
-		let nb_plugins_charges = 0;
+		let countPluginsLoaded = 0;
 
 		for (const plugin of plugins) {
 			this.log(`Loading the plugin '${plugin}'.`);
@@ -101,22 +101,22 @@ export class Bot extends Client {
 				.map(dirent => dirent.name);
 
 			if (folders.includes('init.ts')) {
-				const plug_conf = require(`${PLUGINS_PATH}/${plugin}/init.ts`);
-				if ('enabled' in plug_conf && !plug_conf.enabled) {
+				const plugConf = require(`${PLUGINS_PATH}/${plugin}/init.ts`);
+				if ('enabled' in plugConf && !plugConf.enabled) {
 					this.log('Plugin ignored as it is disabled (init.ts) !', 1);
 					continue;
 				}
-				if ('init' in plug_conf) {
-					plug_conf.init(this);
+				if ('init' in plugConf) {
+					plugConf.init(this);
 				}
 			}
 
 			if (folders.includes('commands')) { this.loadCommands(plugin); }
 			if (folders.includes('events')) { this.loadEvents(plugin); }
-			nb_plugins_charges++;
+			countPluginsLoaded++;
 		}
 
-		this.log(`${nb_plugins_charges} plugins loaded !`);
+		this.log(`${countPluginsLoaded} plugins loaded !`);
 	}
 
 	/**
