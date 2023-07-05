@@ -7,7 +7,7 @@
 import { CommandInteraction, SlashCommandBuilder } from 'discord.js';
 
 
-export const data = new SlashCommandBuilder()
+export const command = new SlashCommandBuilder()
 	.setName('ping')
 	.setDescription('[misc] Pong !');
 
