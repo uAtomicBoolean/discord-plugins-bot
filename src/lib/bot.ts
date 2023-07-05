@@ -1,9 +1,11 @@
 import {
+	REST,
+	Routes,
 	Client,
 	ClientOptions,
 	Collection,
 	ApplicationCommandDataResolvable } from 'discord.js';
-import { commandsArray } from '@lib/types';
+import { discordId, commandsArray } from '@lib/types';
 import { green, red, yellow } from 'ansicolor';
 import fs from 'fs';
 
@@ -162,34 +164,35 @@ export class Bot extends Client {
 	}
 
 	/**
-	 * Upload the commands in either the specified guild, or in all the guilds if no
-	 * id is passed.
-	 * @param guildId [Optional] The guild's id if the commands needs to be only
-	 * upload in one guild.
+	 * Upload the commands to either a specific guild or all the guilds.
+	 * @param targetGuildId The guild's id to upload the commands to.
 	 */
-	async uploadCommands(guildId: string | null = null) {
+	async uploadCommands(targetGuildId?: discordId) {
+		this.log('The commands will be refreshed in ' + (targetGuildId
+			? `the guild '${targetGuildId}'.`
+			: 'all the guilds.'
+		));
+
 		const commands: ApplicationCommandDataResolvable[] = [];
 		this.commands.map(data => {
 			commands.push(data.command.toJSON());
+			this.log(`Loading the commmand: ${data.command.toJSON().name}`);
 		});
 
-		this.log('The commands will be loaded in ' + (guildId
-			? `the guild '${guildId}'.`
-			: 'all the guilds.'
-		));
-		this.log(`Starting refreshing ${commands.length} application (/) commands !`);
+		const rest = new REST({ version: '10' }).setToken(this.token);
 
-		if (guildId) {
-			const guild = await this.guilds.fetch(guildId);
-			await guild.commands.set(commands);
-		}
-		else {
-			await this.application?.commands.set(commands);
-			this.guilds.cache.forEach(async (value, key) => {
-				await this._uploadCommandsToGuild(key, commands);
-			});
-		}
+		this.log(`Started refreshing ${this.commands.size} application (/) commands!`);
+		try {
+			await rest.put(
+				Routes.applicationGuildCommands(this.user.id, targetGuildId),
+				{ body: commands },
+			);
 
-		this.log(`Successfully reloaded ${commands.length} application (/) commands !`);
+			this.log(`Finished refreshing ${this.commands.size} application (/) commands!`);
+		}
+		catch (error) {
+			this.log('An error occured while refreshing the application (/) commands!', 2);
+			console.error(error);
+		}
 	}
 }
