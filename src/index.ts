@@ -5,12 +5,11 @@ import { Bot } from '@lib/bot';
 
 // You must use your own intents and partials for the bot to run properly.
 const client = new Bot({
-	intents: [
-	],
+	intents: [],
 	partials: [],
 });
 
-// Adding a listener for the nodejs' errors not handled.
+// Adding a listener for the nodejs' errors that are not handled.
 process.on('unhandledRejection', error => {
 	client.log('Error not handled !', 1);
 	console.error(error);

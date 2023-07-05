@@ -10,18 +10,17 @@ import fs from 'fs';
 
 const LOG_LEVELS = ['INFO', 'WARNING', 'ERROR'];
 
+// This variable is necessary to load the plugins from dist and
+// not src (and the opposite) when running the code after compilation.
+const PLUGINS_PATH = `${__dirname}/../plugins`;
+
 
 export class Bot extends Client {
 	public commands: commandsArray;
-	private readonly _pluginsPath: string;
 
 	constructor(options: ClientOptions) {
 		super(options);
 		this.commands = new Collection();
-
-		// This variable is necessary to load the plugins from dist and
-		// not src (and the opposite) when running the code after compilation.
-		this._pluginsPath = `${__dirname}/../plugins`;
 
 		this.loadPlugins();
 	}
@@ -85,7 +84,7 @@ export class Bot extends Client {
 	 * Load the plugins in the bot.
 	 */
 	loadPlugins() {
-		const plugins = fs.readdirSync(this._pluginsPath, { withFileTypes: true })
+		const plugins = fs.readdirSync(PLUGINS_PATH, { withFileTypes: true })
 			.filter(dirent => dirent.isDirectory())
 			.map(dirent => dirent.name);
 
@@ -95,12 +94,12 @@ export class Bot extends Client {
 		for (const plugin of plugins) {
 			this.log(`Loading the plugin '${plugin}'.`);
 
-			const folders = fs.readdirSync(`${this._pluginsPath}/${plugin}`, { withFileTypes: true })
+			const folders = fs.readdirSync(`${PLUGINS_PATH}/${plugin}`, { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory() || dirent.name === 'init.ts')
 				.map(dirent => dirent.name);
 
 			if (folders.includes('init.ts')) {
-				const plug_conf = require(`${this._pluginsPath}/${plugin}/init.ts`);
+				const plug_conf = require(`${PLUGINS_PATH}/${plugin}/init.ts`);
 				if ('enabled' in plug_conf && !plug_conf.enabled) {
 					this.log('Plugin ignored as it is disabled (init.ts) !', 1);
 					continue;
@@ -123,7 +122,7 @@ export class Bot extends Client {
 	 * @param plugin The plugin's name.
 	 */
 	loadCommands(plugin: string) {
-		const commandsPath = `${this._pluginsPath}/${plugin}/commands`;
+		const commandsPath = `${PLUGINS_PATH}/${plugin}/commands`;
 		// Removing the '.map' files from the resulting list to avoid a runtime error.
 		// The map files are used by the Typescript debugger.
 		const commands = fs.readdirSync(commandsPath, { withFileTypes: true })
@@ -142,7 +141,7 @@ export class Bot extends Client {
 	 * @param plugin The plugin's name.
 	 */
 	loadEvents(plugin: string) {
-		const eventsPath = `${this._pluginsPath}/${plugin}/events`;
+		const eventsPath = `${PLUGINS_PATH}/${plugin}/events`;
 		const events = fs.readdirSync(eventsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile() && !filent.name.endsWith('.map'))
 			.map(filent => filent.name);
