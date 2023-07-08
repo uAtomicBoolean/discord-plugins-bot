@@ -104,7 +104,7 @@ dist
 .tern-port
 
 # Configuration file
-config.json
+src/config.json.template
 
 # Jetbrains suite
 .idea

@@ -5,16 +5,10 @@ import {
 	ClientOptions,
 	Collection,
 	ApplicationCommandDataResolvable } from 'discord.js';
+import { LOG_LEVELS, PLUGINS_PATH, CHECK_INTERACTION_CREATE_HANDLER } from './config';
 import { discordId, commandsArray } from '@lib/types';
 import { green, red, yellow } from 'ansicolor';
 import fs from 'fs';
-
-
-const LOG_LEVELS = ['INFO', 'WARNING', 'ERROR'];
-
-// This variable is necessary to load the plugins from dist and
-// not src (and the opposite) when running the code after compilation.
-const PLUGINS_PATH = `${__dirname}/../plugins`;
 
 
 export class Bot extends Client {
@@ -76,7 +70,7 @@ export class Bot extends Client {
 	 */
 	logErrCommande(cmdName: string, error: unknown) {
 		this.log(`An error occured in the "${cmdName}" command !`, 2);
-        	console.log(error);
+		console.log(error);
 	}
 
 	/* ----------------------------------------------- */
@@ -152,6 +146,12 @@ export class Bot extends Client {
 			this.log(`\t event: ${event}`);
 
 			const data = require(`${eventsPath}/${event}`);
+			if (CHECK_INTERACTION_CREATE_HANDLER && plugin !== 'base' && data.name === 'interactionCreate') {
+				this.log('You cannot create a handler for the "interactionCreate" event as one already ' +
+					'exists in the "base" plugin.', 2);
+				process.exit(1);
+			}
+
 			const data_exc = async (...args: any[]) => { await data.execute(...args, this); };
 
 			if (data.once) {
