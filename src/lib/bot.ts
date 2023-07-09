@@ -183,10 +183,19 @@ export class Bot extends Client {
 
 		this.log(`Started refreshing ${this.commands.size} application (/) commands!`);
 		try {
-			await rest.put(
-				Routes.applicationGuildCommands(this.user.id, targetGuildId),
-				{ body: commands },
-			);
+			if (targetGuildId) {
+				await rest.put(
+					Routes.applicationGuildCommands(this.user.id, targetGuildId),
+					{ body: commands },
+				);
+			}
+			else {
+				await rest.put(
+					Routes.applicationCommands(this.user.id),
+					{ body: commands },
+				);
+				this.log('The commands may take up to an hour before being available in all the guilds.');
+			}
 
 			this.log(`Finished refreshing ${this.commands.size} application (/) commands!`);
 		}
