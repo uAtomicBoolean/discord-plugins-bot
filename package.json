@@ -2,7 +2,7 @@
 	"name": "discord-plugin-bot",
 	"version": "1.0.0",
 	"description": "A template for developing discord bots using a modules system.",
-	"main": "src/index.js",
+	"main": "src/index.ts",
 	"scripts": {
 		"build": "tsc && tsc-alias",
 		"start": "node dist/index.js",
@@ -12,7 +12,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/uAtomicBoolean/mod-bot.git"
+		"url": "git+https://github.com/uAtomicBoolean/discord-plugins-bot.git"
 	},
 	"keywords": [
 		"discord",
@@ -26,9 +26,9 @@
 	"author": "uAtomicBoolean",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/uAtomicBoolean/mod-bot/issues"
+		"url": "https://github.com/uAtomicBoolean/discord-plugins-bot/issues"
 	},
-	"homepage": "https://github.com/uAtomicBoolean/mod-bot#readme",
+	"homepage": "https://github.com/uAtomicBoolean/discord-plugins-bot#readme",
 	"dependencies": {
 		"ansicolor": "^1.1.100",
 		"discord.js": "^14.7.1"
