@@ -9,7 +9,7 @@ export const data = new SlashCommandBuilder()
 	.setName('sync_commands')
 	.setDescription('Upload or refresh the commands to all the guilds.')
 	.setDMPermission(false)
-	.setDefaultMemberPermissions(8192);
+	.setDefaultMemberPermissions(8192); // TODO check the permissions.
 
 
 /* ----------------------------------------------- */
