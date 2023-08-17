@@ -1,5 +1,5 @@
 import { GatewayIntentBits, Partials } from 'discord.js';
-import { token, guildId } from '@src/config.json.template';
+import { token, guildId } from '@src/config.json';
 import { Bot } from '@lib/bot';
 
 
