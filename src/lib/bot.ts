@@ -9,6 +9,7 @@ import { LOG_LEVELS, PLUGINS_PATH, CHECK_INTERACTION_CREATE_HANDLER } from './co
 import { discordId, commandsArray } from '@lib/types';
 import { green, red, yellow } from 'ansicolor';
 import fs from 'fs';
+import { baseGuildId } from '@src/config.json';
 
 
 export class Bot extends Client {
@@ -28,6 +29,9 @@ export class Bot extends Client {
 	async start(token: string) {
 		this.log('Bot starting up.');
 		await super.login(token);
+		this.log('Uploading the commands to the base guild.');
+		this.log('To upload the commands to all the guilds, use the command "/sync_commands" or start the bot with the -L parameter.');
+		await this.uploadCommands(baseGuildId);
 	}
 
 	/* ----------------------------------------------- */
