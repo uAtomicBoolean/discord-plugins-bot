@@ -5,7 +5,7 @@ import { SlashCommandBuilder, CommandInteraction } from 'discord.js';
 /* ----------------------------------------------- */
 /* COMMAND BUILD                                   */
 /* ----------------------------------------------- */
-export const data = new SlashCommandBuilder()
+export const command = new SlashCommandBuilder()
 	.setName('sync_commands')
 	.setDescription('Upload or refresh the commands to all the guilds.')
 	.setDMPermission(false)
