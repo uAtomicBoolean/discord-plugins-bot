@@ -1,80 +1,47 @@
+import { commandsArray, discordId } from '@lib/types';
 import {
-	REST,
-	Routes,
+	ApplicationCommandDataResolvable,
 	Client,
 	ClientOptions,
 	Collection,
-	ApplicationCommandDataResolvable } from 'discord.js';
-import { LOG_LEVELS, PLUGINS_PATH, CHECK_INTERACTION_CREATE_HANDLER } from './config';
-import { discordId, commandsArray } from '@lib/types';
-import { green, red, yellow } from 'ansicolor';
+	REST,
+	Routes,
+} from 'discord.js';
 import fs from 'fs';
-import { baseGuildId } from '@src/config.json';
+import pino from 'pino';
+import { CHECK_INTERACTION_CREATE_HANDLER, PLUGINS_PATH } from './config';
+
+const NodeCache = require('node-cache');
 
 
 export class Bot extends Client {
+	// Array used to store the commands and their handlers.
 	public commands: commandsArray;
+
+	// A simple cache useful to store temporary data.
+	// It is configured to store the data for 1 day before deleting them.
+	public readonly cache: typeof NodeCache;
+
+	public readonly logger = pino({
+		transport: {
+			target: 'pino-pretty',
+		},
+	});
 
 	constructor(options: ClientOptions) {
 		super(options);
 		this.commands = new Collection();
+		this.cache = new NodeCache({ stdTTL: 86400 });
 
 		this.loadPlugins();
 	}
 
 	/**
-	 * Start the bot and log the start.
-	 * @param token The bot's token.
+	 * Start the bot with a log.
 	 */
-	async start(token: string) {
-		this.log('Bot starting up.');
-		await super.login(token);
-		this.log('Uploading the commands to the base guild.');
-		this.log('To upload the commands to all the guilds, use the command "/sync_commands" or start the bot with the -L parameter.');
-		await this.uploadCommands(baseGuildId);
-	}
-
-	/* ----------------------------------------------- */
-	/* LOGGING                                         */
-	/* ----------------------------------------------- */
-	/**
-	 * Get the colored text for the log's level.
-	 * @param level The log's level.
-	 * @returns A colored string.
-	 */
-	_getLevelTxt(level: number): string {
-		switch (level) {
-		case 0:
-			return green(LOG_LEVELS[level]);
-		case 1:
-			return yellow(LOG_LEVELS[level]);
-		case 2:
-			return red(LOG_LEVELS[level]);
-		default:
-			return 'UNKNOWN';
-		}
-	}
-
-	/**
-	 * Display a log.
-	 * @param text The log message.
-	 * @param level The log level.
-	 */
-	log(text: string, level: number = 0) {
-		const date = new Date();
-		const dateFormat = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()} `
-			+ `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-		console.log(`${dateFormat} ${this._getLevelTxt(level)} : ${text}`);
-	}
-
-	/**
-	 * Display a log but specificaly for an error in a command.
-	 * @param cmdName The command's name.
-	 * @param error The error.
-	 */
-	logErrCommande(cmdName: string, error: unknown) {
-		this.log(`An error occured in the "${cmdName}" command !`, 2);
-		console.log(error);
+	async start() {
+		this.logger.info('Bot starting up.');
+		await super.login(process.env.TOKEN);
 	}
 
 	/* ----------------------------------------------- */
@@ -88,11 +55,11 @@ export class Bot extends Client {
 			.filter(dirent => dirent.isDirectory())
 			.map(dirent => dirent.name);
 
-		this.log(`${plugins.length} plugins found !`);
+		this.logger.info(`${plugins.length} plugins found !`);
 		let countPluginsLoaded = 0;
 
 		for (const plugin of plugins) {
-			this.log(`Loading the plugin '${plugin}'.`);
+			this.logger.info(`Loading the plugin '${plugin}'.`);
 
 			const folders = fs.readdirSync(`${PLUGINS_PATH}/${plugin}`, { withFileTypes: true })
 				.filter(dirent => dirent.isDirectory() || dirent.name === 'init.ts')
@@ -101,7 +68,7 @@ export class Bot extends Client {
 			if (folders.includes('init.ts')) {
 				const plugConf = require(`${PLUGINS_PATH}/${plugin}/init.ts`);
 				if ('enabled' in plugConf && !plugConf.enabled) {
-					this.log('Plugin ignored as it is disabled (init.ts) !', 1);
+					this.logger.warn('Plugin ignored as it is disabled (init.ts) !');
 					continue;
 				}
 				if ('init' in plugConf) {
@@ -114,7 +81,7 @@ export class Bot extends Client {
 			countPluginsLoaded++;
 		}
 
-		this.log(`${countPluginsLoaded} plugins loaded !`);
+		this.logger.info(`${countPluginsLoaded} plugins loaded !`);
 	}
 
 	/**
@@ -123,14 +90,12 @@ export class Bot extends Client {
 	 */
 	loadCommands(plugin: string) {
 		const commandsPath = `${PLUGINS_PATH}/${plugin}/commands`;
-		// Removing the '.map' files from the resulting list to avoid a runtime error.
-		// The map files are used by the Typescript debugger.
 		const commands = fs.readdirSync(commandsPath, { withFileTypes: true })
 			.filter(filent => filent.isFile() && !filent.name.endsWith('.map'))
 			.map(filent => filent.name);
 
 		for (const command of commands) {
-			this.log(`\t command: ${command}`);
+			this.logger.info(`\t command: ${command}`);
 			const data = require(`${commandsPath}/${command}`);
 			this.commands.set(data.command.name, data);
 		}
@@ -147,12 +112,12 @@ export class Bot extends Client {
 			.map(filent => filent.name);
 
 		for (const event of events) {
-			this.log(`\t event: ${event}`);
+			this.logger.info(`\t event: ${event}`);
 
 			const data = require(`${eventsPath}/${event}`);
 			if (CHECK_INTERACTION_CREATE_HANDLER && plugin !== 'base' && data.name === 'interactionCreate') {
-				this.log('You cannot create a handler for the "interactionCreate" event as one already ' +
-					'exists in the "base" plugin.', 2);
+				this.logger.error('You cannot create a handler for the "interactionCreate" event as one already ' +
+					'exists in the "base" plugin.');
 				process.exit(1);
 			}
 
@@ -172,7 +137,7 @@ export class Bot extends Client {
 	 * @param targetGuildId The guild's id to upload the commands to.
 	 */
 	async uploadCommands(targetGuildId?: discordId) {
-		this.log('The commands will be refreshed in ' + (targetGuildId
+		this.logger.info('The commands will be refreshed in ' + (targetGuildId
 			? `the guild '${targetGuildId}'.`
 			: 'all the guilds.'
 		));
@@ -180,12 +145,12 @@ export class Bot extends Client {
 		const commands: ApplicationCommandDataResolvable[] = [];
 		this.commands.map(data => {
 			commands.push(data.command.toJSON());
-			this.log(`Loading the commmand: ${data.command.toJSON().name}`);
+			this.logger.info(`Loading the commmand: ${data.command.toJSON().name}`);
 		});
 
 		const rest = new REST({ version: '10' }).setToken(this.token);
 
-		this.log(`Started refreshing ${this.commands.size} application (/) commands!`);
+		this.logger.info(`Started refreshing ${this.commands.size} application (/) commands!`);
 		try {
 			if (targetGuildId) {
 				await rest.put(
@@ -198,13 +163,13 @@ export class Bot extends Client {
 					Routes.applicationCommands(this.user.id),
 					{ body: commands },
 				);
-				this.log('The commands may take up to an hour before being available in all the guilds.');
+				this.logger.info('The commands may take up to an hour before being available in all the guilds.');
 			}
 
-			this.log(`Finished refreshing ${this.commands.size} application (/) commands!`);
+			this.logger.info(`Finished refreshing ${this.commands.size} application (/) commands!`);
 		}
 		catch (error) {
-			this.log('An error occured while refreshing the application (/) commands!', 2);
+			this.logger.error('An error occured while refreshing the application (/) commands!');
 			console.error(error);
 		}
 	}

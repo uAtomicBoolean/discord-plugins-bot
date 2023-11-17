@@ -1,6 +1,7 @@
-import { GatewayIntentBits, Partials } from 'discord.js';
-import { token, guildId } from '@src/config.json';
 import { Bot } from '@lib/bot';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.example' });
 
 
 // You must use your own intents and partials for the bot to run properly.
@@ -11,18 +12,18 @@ const client = new Bot({
 
 // Adding a listener for the nodejs' errors that are not handled.
 process.on('unhandledRejection', error => {
-	client.log('Error not handled !', 1);
+	client.logger.warn('Error not handled !');
 	console.error(error);
 });
 
 
 (async () => {
-	await client.start(token);
+	await client.start();
 
 	if (process.argv.includes('-L')) {
 		await client.uploadCommands();
 	}
-	else if (process.argv.includes('-l')) {
-		await client.uploadCommands(guildId);
+	else {
+		await client.uploadCommands(process.env.BASE_GUILD_ID);
 	}
 })();

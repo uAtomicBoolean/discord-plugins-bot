@@ -1,5 +1,3 @@
-export const LOG_LEVELS = ['INFO', 'WARNING', 'ERROR'];
-
 // This variable is necessary to load the plugins from dist and
 // not src (and the opposite) when running the code after compilation.
 // You can change it if you want to change the locations of the plugins.
